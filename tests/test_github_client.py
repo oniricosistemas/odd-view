@@ -1,3 +1,6 @@
+import gzip
+import json
+
 import httpx
 import pytest
 
@@ -73,6 +76,27 @@ async def test_github_response_content_length_and_stream_are_bounded():
         with pytest.raises(ValueError, match="too large"):
             await gh.get_pr("owner/repo", 4)
     assert consumed <= 9
+
+
+@pytest.mark.asyncio
+async def test_compressed_github_response_is_decoded_once():
+    payload = {"number": 4, "state": "open"}
+    compressed = gzip.compress(json.dumps(payload).encode())
+
+    async def handler(request):
+        return httpx.Response(
+            200,
+            content=compressed,
+            headers={"Content-Encoding": "gzip", "Content-Length": str(len(compressed))},
+        )
+
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(handler),
+        base_url="https://api.github.com",
+        follow_redirects=False,
+    ) as raw:
+        result = await GitHubClient(raw, lambda: async_token("tok")).get_pr("owner/repo", 4)
+    assert result == payload
 
 
 def test_github_client_refuses_redirect_following_configuration():

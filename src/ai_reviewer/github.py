@@ -33,7 +33,12 @@ async def _bounded_send(client: httpx.AsyncClient, request: httpx.Request,
             if size > maximum:
                 raise ValueError(f"{label} response too large")
             chunks.append(chunk)
-        return httpx.Response(response.status_code, headers=response.headers,
+        decoded_headers = [
+            (name, value)
+            for name, value in response.headers.multi_items()
+            if name.lower() not in {"content-encoding", "content-length", "transfer-encoding"}
+        ]
+        return httpx.Response(response.status_code, headers=decoded_headers,
                               content=b"".join(chunks), request=request)
     finally:
         await response.aclose()
