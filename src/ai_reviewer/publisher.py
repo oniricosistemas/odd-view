@@ -78,7 +78,7 @@ class Publisher:
             "external_id": external_id,
             "review_payload": {"commit_id": head_sha, "event": "COMMENT",
                                "body": f"AI review complete.\n{marker}", "comments": comments},
-            "check_payload": {"name": "AI Review", "head_sha": head_sha,
+            "check_payload": {"name": "AI PR Review", "head_sha": head_sha,
                               "external_id": external_id, "status": "completed",
                               "conclusion": "neutral", "output": {"title": "AI review complete",
                               "summary": f"{len(findings)} finding(s)."}},

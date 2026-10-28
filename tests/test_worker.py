@@ -81,7 +81,7 @@ async def test_worker_end_to_end_real_sqlite_and_mock_transports(tmp_path):
                         b"server-marker-secret", 42, 42)
         await worker.process(run_id, "worker", claimed["lease_generation"])
     assert models == ["gemini-rotativo", "OpenRoute-Free", "Ollama"]
-    assert [data.get("event", data.get("name")) for _, data in github_posts] == ["COMMENT", "AI Review"]
+    assert [data.get("event", data.get("name")) for _, data in github_posts] == ["COMMENT", "AI PR Review"]
     assert store.get_run(run_id)["status"] == "completed"
     review_payload = github_posts[0][1]
     assert "persisted-v1" not in review_payload["body"]  # policy is represented only by its MAC marker
