@@ -107,8 +107,6 @@ def create_app(store: Store, webhook_secret: bytes, policy_version: str) -> Fast
             })
         except (json.JSONDecodeError, ValidationError) as exc:
             raise HTTPException(422, "invalid payload") from exc
-        if event.action not in _ALLOWED_ACTIONS:
-            raise HTTPException(400, "action not allowed")
         delivery = request.headers.get("X-GitHub-Delivery")
         if not delivery:
             raise HTTPException(400, "missing delivery id")
@@ -116,6 +114,8 @@ def create_app(store: Store, webhook_secret: bytes, policy_version: str) -> Fast
             delivery = str(uuid.UUID(delivery))
         except ValueError as exc:
             raise HTTPException(400, "invalid delivery id") from exc
+        if event.action not in _ALLOWED_ACTIONS:
+            return {"ignored": event.action}
         pull = event.pull
         try:
             # Webhooks are hints only. Live PR state is authoritative in the worker.

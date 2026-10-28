@@ -48,6 +48,17 @@ def test_webhook_accepts_representative_github_extra_properties(tmp_path):
         assert signed(client, body).status_code == 202
 
 
+def test_signed_unhandled_pull_request_action_is_accepted_without_run(tmp_path):
+    store = Store(tmp_path / "db")
+    with TestClient(create_app(store, b"secret", "v1")) as client:
+        response = signed(client, payload(action="edited"))
+    assert response.status_code == 202
+    assert response.json() == {"ignored": "edited"}
+    with store.connect() as db:
+        assert db.execute("SELECT count(*) FROM runs").fetchone()[0] == 0
+        assert db.execute("SELECT count(*) FROM deliveries").fetchone()[0] == 0
+
+
 def test_delivery_requires_uuid_and_same_uuid_different_body_is_incident(tmp_path):
     store = Store(tmp_path / "db")
     delivery = str(uuid.uuid4())
