@@ -20,6 +20,8 @@ async def test_only_exact_models_are_allowed_and_response_json_is_strict():
         assert finding.candidate_id == "c1"
         with pytest.raises(ValueError):
             await client.complete("auto/best", "x", Finding)
+        with pytest.raises(ValueError):
+            await client.complete("OpenCode-Free", "x", Finding)
     assert seen[0].url == httpx.URL("http://router.test/v1/chat/completions")
 
 
@@ -30,7 +32,7 @@ async def test_extra_response_properties_are_rejected():
         return httpx.Response(200, json={"choices": [{"message": {"content": __import__("json").dumps(bad)}}]})
     async with httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url="http://router.test/v1") as raw:
         with pytest.raises(ValidationError):
-            await OmniRouteClient(raw, "placeholder").complete("OpenCode-Free", "x", Finding)
+            await OmniRouteClient(raw, "placeholder").complete("OpenRoute-Free", "x", Finding)
 
 
 @pytest.mark.asyncio

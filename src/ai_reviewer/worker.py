@@ -188,20 +188,6 @@ class Worker:
                                           "candidates": [item.model_dump(mode="json") for item in findings]})
                     verifications.extend((await self.omni.complete(
                         review_pass.model, prompt, VerificationBatch)).verifications)
-                elif review_pass.role.endswith("specialist"):
-                    prompt = prompt_json({"task": "find_specialist_defects",
-                                          "schema": FindingBatch.model_json_schema(), "pr_data": pr_data,
-                                          "specialist_rule": "security-sensitive path selected by local policy"})
-                    specialist = canonicalize_findings(review_pass.role, await self.omni.complete(
-                        review_pass.model, prompt, FindingBatch))
-                    validate_locations(specialist, locations)
-                    findings.extend(specialist)
-                    verify_prompt = prompt_json({"task": "verify_findings",
-                        "verification_rule": "independently confirm specialist evidence",
-                        "schema": VerificationBatch.model_json_schema(), "pr_data": pr_data,
-                        "candidates": [item.model_dump(mode="json") for item in specialist]})
-                    verifications.extend((await self.omni.complete(
-                        "OpenCode-Free", verify_prompt, VerificationBatch)).verifications)
                 else:
                     prompt = prompt_json({"task": "suggest_wording_only",
                                           "schema": SuggestionBatch.model_json_schema(), "pr_data": pr_data})

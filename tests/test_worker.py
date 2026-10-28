@@ -66,14 +66,9 @@ async def test_worker_end_to_end_real_sqlite_and_mock_transports(tmp_path):
         model = json.loads(request.content)["model"]; models.append(model)
         if model == "gemini-rotativo": content = {"findings": [{**VALID, "path": "src/auth.py"}]}
         elif model == "OpenRoute-Free":
-            content = {"findings": [{**VALID, "candidate_id": "c2", "path": "src/auth.py",
-                                      "root_cause_key": "specialist-root"}]}
-        elif model == "OpenCode-Free":
             prompt = json.loads(json.loads(request.content)["messages"][1]["content"])
             candidate = prompt["candidates"][0]["candidate_id"]
-            assert prompt["task"] == "verify_findings" and candidate in {"primary:c1", "security-specialist:c2"}
-            if candidate == "security-specialist:c2":
-                assert prompt["verification_rule"] == "independently confirm specialist evidence"
+            assert prompt["task"] == "verify_findings" and candidate == "primary:c1"
             content = {"verifications": [{"candidate_id": candidate, "decision": "confirm"}]}
         elif model == "Ollama":
             # Wording suggestions are non-authoritative and must never block a review.
@@ -85,7 +80,7 @@ async def test_worker_end_to_end_real_sqlite_and_mock_transports(tmp_path):
         worker = Worker(store, GitHubClient(gh_raw, token), OmniRouteClient(omni_raw, "placeholder"),
                         b"server-marker-secret", 42, 42)
         await worker.process(run_id, "worker", claimed["lease_generation"])
-    assert models == ["gemini-rotativo", "OpenCode-Free", "OpenRoute-Free", "OpenCode-Free", "Ollama"]
+    assert models == ["gemini-rotativo", "OpenRoute-Free", "Ollama"]
     assert [data.get("event", data.get("name")) for _, data in github_posts] == ["COMMENT", "AI Review"]
     assert store.get_run(run_id)["status"] == "completed"
     review_payload = github_posts[0][1]
@@ -141,7 +136,7 @@ async def test_ambiguous_partial_publication_reconciles_in_place_with_durable_sn
             if model == "gemini-rotativo":
                 return contract.model_validate({"findings": [{**VALID, "path": "src/plain.py",
                     "line": 1, "end_line": 1}]})
-            if model == "OpenCode-Free":
+            if model == "OpenRoute-Free":
                 candidate = json.loads(prompt)["candidates"][0]["candidate_id"]
                 return contract.model_validate({"verifications": [{"candidate_id": candidate,
                                                                      "decision": "confirm"}]})
@@ -183,7 +178,7 @@ async def test_never_visible_ambiguous_post_is_terminal_manual_and_never_reposte
         async def complete(self, model, prompt, contract):
             if model == "gemini-rotativo":
                 return contract.model_validate({"findings": []})
-            if model == "OpenCode-Free":
+            if model == "OpenRoute-Free":
                 return contract.model_validate({"verifications": []})
             return contract.model_validate({"suggestions": ["wording"]})
 
