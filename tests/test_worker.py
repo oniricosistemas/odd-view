@@ -75,6 +75,9 @@ async def test_worker_end_to_end_real_sqlite_and_mock_transports(tmp_path):
             if candidate == "security-specialist:c2":
                 assert prompt["verification_rule"] == "independently confirm specialist evidence"
             content = {"verifications": [{"candidate_id": candidate, "decision": "confirm"}]}
+        elif model == "Ollama":
+            # Wording suggestions are non-authoritative and must never block a review.
+            return httpx.Response(200, json={"choices": [{"message": {"content": "not-json"}}]})
         else: content = {"suggestions": ["clearer wording"]}
         return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(content)}}]})
     async with httpx.AsyncClient(transport=httpx.MockTransport(github_handler), base_url="https://api.github.com") as gh_raw, \

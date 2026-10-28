@@ -2,6 +2,8 @@ import asyncio
 import json
 import re
 
+import httpx
+
 from .contracts import FindingBatch, SuggestionBatch, VerificationBatch, validate_locations
 from .github import GitHubClient, ReviewTooLarge
 from .omniroute import OmniRouteClient
@@ -203,7 +205,12 @@ class Worker:
                 else:
                     prompt = prompt_json({"task": "suggest_wording_only",
                                           "schema": SuggestionBatch.model_json_schema(), "pr_data": pr_data})
-                    await self.omni.complete(review_pass.model, prompt, SuggestionBatch)
+                    try:
+                        await self.omni.complete(review_pass.model, prompt, SuggestionBatch)
+                    except (ValueError, httpx.HTTPError):
+                        # Wording is explicitly non-authoritative. Provider or
+                        # schema failures must not discard already verified findings.
+                        pass
                 ensure_lease()
             validate_locations(findings, locations)
             reduced = reduce_findings(findings, verifications, locations)
