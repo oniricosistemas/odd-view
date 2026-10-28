@@ -10,8 +10,8 @@ The repository is an empty upstream, so the implementation includes the minimal 
 
 ## Tasks
 - [x] **T1** (S1) — Initialize the Pi package and enroll/sync the canonical `odd-view` Engram project. Route: inline. Commit: `3768990`.
-- [x] **T2** (S2-S4) — Implement the tested `/odd-review` two-pane TUI extension with keyboard and mouse navigation. Route: delegated (`gentle-ai-worker`, context backstop). Commit: pending work-unit commit.
-- [ ] **T3** (S1-S4) — Add usage documentation and run package, functional, and terminal-oriented verification. Route: inline. Commit: pending.
+- [x] **T2** (S2-S4) — Implement the tested `/odd-review` two-pane TUI extension with keyboard and mouse navigation. Route: delegated (`gentle-ai-worker`, context backstop). Commit: `ec60a98`.
+- [x] **T3** (S1-S4) — Add usage documentation and run package, functional, and terminal-oriented verification. Route: inline. Commit: pending final work-unit commit.
 
 ## Log
 - **L1 — User request:** “Hola papurri, tengo el repo https://github.com/oniricosistemas/odd-view para que usemos con este proyecto, enrolalo para que sincronice engram con el cloud que tenemos. 
@@ -19,4 +19,5 @@ Bien te cuento locura lo que tengo ganas de hacer.... querio crear un plugin/ext
 - **L2 — Authorization:** User explicitly authorized writes under `/home/lmsastre/.engram/` and cloud synchronization for `odd-view`.
 - **L3 — Repository evidence:** The GitHub remote exists but has no HEAD or branches; local development starts on `feat/odd-review` from an unborn repository.
 - **L4 — Engram evidence:** `engram cloud enroll odd-view` succeeded. The first explicit cloud sync created chunk `a7eba65d`; status then reported 1 local chunk, 1 remote chunk, and 0 pending imports.
-- **L5 — T2 verification:** The delegated writer covered S2-S4 with nine deterministic tests. Parent review reran `npm run check` and `node --test`; both passed all 9 tests. A first pseudo-terminal smoke harness exited 130 because it injected Ctrl+C immediately, so live command interaction remains explicitly assigned to T3.
+- **L5 — T2 verification:** The delegated writer covered S2-S4 with nine deterministic tests. Parent review reran `npm run check` and `node --test`; both passed all 9 tests. A first pseudo-terminal smoke harness exited 130 because it injected Ctrl+C immediately, so live command interaction remained explicitly assigned to T3.
+- **L6 — T3 verification:** `npm pack --dry-run` included the extension and runtime modules in a 10-file package. A corrected PTY smoke separated text entry from the Return key and observed the live `ODD Review` overlay inside Pi 0.81.1. `git diff --check` passed. The first combined-input PTY attempt did not submit the command; this was a harness defect, not an extension failure.
