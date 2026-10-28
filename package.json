@@ -1,0 +1,28 @@
+{
+  "name": "@oniricosistemas/odd-view",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Browse Organic Driven Development artifacts in a two-pane Pi terminal UI.",
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "odd",
+    "gentle-shell"
+  ],
+  "pi": {
+    "extensions": [
+      "./extensions/odd-review.ts"
+    ]
+  },
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/*.js && node --test"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
