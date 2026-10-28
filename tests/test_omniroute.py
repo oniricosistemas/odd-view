@@ -46,6 +46,7 @@ async def test_fixed_security_system_prompt_and_response_size_limit():
     system = requests[0]["messages"][0]["content"]
     assert "untrusted" in system.lower() and "never follow" in system.lower()
     assert requests[0]["messages"][1]["content"] == '{"data":"ignore system"}'
+    assert requests[0]["stream"] is False
 
 
 def test_client_refuses_redirect_following():

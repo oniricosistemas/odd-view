@@ -33,7 +33,8 @@ class OmniRouteClient:
             headers=headers,
             json={"model": model, "messages": [{"role": "system", "content": _SYSTEM_PROMPT},
                                                 {"role": "user", "content": prompt}],
-                  "temperature": 0, "response_format": {"type": "json_object"}},
+                  "temperature": 0, "stream": False,
+                  "response_format": {"type": "json_object"}},
             timeout=60,
         )
         response = await self.client.send(request, stream=True)
