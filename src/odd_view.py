@@ -4,6 +4,9 @@ from pathlib import Path
 
 
 def read_document(base_directory: str | Path, requested_path: str) -> str:
-    """Read a requested document from base_directory."""
-    target = Path(base_directory) / requested_path
+    """Read a document only when it remains inside base_directory."""
+    base = Path(base_directory).resolve()
+    target = (base / requested_path).resolve()
+    if not target.is_relative_to(base):
+        raise ValueError("requested path escapes the document directory")
     return target.read_text(encoding="utf-8")
