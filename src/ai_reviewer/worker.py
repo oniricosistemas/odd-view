@@ -181,13 +181,14 @@ class Worker:
                     batch = await self.omni.complete(review_pass.model, prompt, FindingBatch)
                     findings.extend(canonicalize_findings(review_pass.role, batch))
                 elif review_pass.role == "adversarial":
-                    validate_locations(findings, locations)
-                    prompt = prompt_json({"task": "verify_findings",
-                                          "schema": VerificationBatch.model_json_schema(),
-                                          "pr_data": pr_data,
-                                          "candidates": [item.model_dump(mode="json") for item in findings]})
-                    verifications.extend((await self.omni.complete(
-                        review_pass.model, prompt, VerificationBatch)).verifications)
+                    if findings:
+                        validate_locations(findings, locations)
+                        prompt = prompt_json({"task": "verify_findings",
+                                              "schema": VerificationBatch.model_json_schema(),
+                                              "pr_data": pr_data,
+                                              "candidates": [item.model_dump(mode="json") for item in findings]})
+                        verifications.extend((await self.omni.complete(
+                            review_pass.model, prompt, VerificationBatch)).verifications)
                 else:
                     prompt = prompt_json({"task": "suggest_wording_only",
                                           "schema": SuggestionBatch.model_json_schema(), "pr_data": pr_data})

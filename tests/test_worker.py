@@ -179,7 +179,7 @@ async def test_never_visible_ambiguous_post_is_terminal_manual_and_never_reposte
             if model == "gemini-rotativo":
                 return contract.model_validate({"findings": []})
             if model == "OpenRoute-Free":
-                return contract.model_validate({"verifications": []})
+                raise AssertionError("verifier must not run without candidate findings")
             return contract.model_validate({"suggestions": ["wording"]})
 
     github = GitHub()
