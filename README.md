@@ -1,13 +1,13 @@
 # Review ODD artifacts without leaving gentle-shell
 
-`odd-view` adds `/odd-review` to Pi and gentle-shell. The command opens a read-only browser for every regular file under the current project's `odd/` directory: choose a file on the left and read its formatted content on the right.
+`odd-view` adds `/odd-review` to gentle-shell. The command opens a read-only browser for every regular file under the current project's `odd/` directory: choose a file on the left and read its formatted content on the right.
 
 ## Quick path
 
 ### Try this checkout
 
 ```bash
-pi --extension ./extensions/odd-review.ts
+gentle-shell --extension ./extensions/odd-review.ts
 ```
 
 Inside gentle-shell, run:
@@ -16,15 +16,29 @@ Inside gentle-shell, run:
 /odd-review
 ```
 
-### Install from GitHub
+### Install permanently
 
-After this repository has been published, install the package once:
+The public npm package is the simplest path for a new user:
 
 ```bash
-pi install git:github.com/oniricosistemas/odd-view
+gentle-shell install npm:@oniricosistemas/odd-view
 ```
 
-Restart or reload Pi, then run `/odd-review` from any project that contains an `odd/` directory.
+A released GitHub tag installs the same immutable version without using the npm registry. Replace `${VERSION}` with a published version such as `0.1.0`:
+
+```bash
+gentle-shell install git:github.com/oniricosistemas/odd-view@v${VERSION}
+```
+
+Restart or reload gentle-shell, then run `/odd-review` from any project that contains an `odd/` directory. A custom installer is unnecessary: `gentle-shell install` writes the package into the resolved Gentle Shell home and keeps it separate from vanilla Pi by default.
+
+Manage the installed package through the same home:
+
+```bash
+gentle-shell list
+gentle-shell update npm:@oniricosistemas/odd-view
+gentle-shell remove npm:@oniricosistemas/odd-view
+```
 
 ## Controls
 
@@ -84,3 +98,5 @@ npm run check
 | `src/browser.js` | Responsive layout, rendering, keyboard, and mouse behavior |
 | `test/odd-review.test.js` | Public behavior and safety regression coverage |
 | `odd/tasks/odd-review.md` | ODD specification, task state, and evidence log |
+
+Maintainers should follow [`RELEASING.md`](./RELEASING.md) so the npm version and GitHub tag stay identical.

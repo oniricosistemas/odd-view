@@ -1,9 +1,27 @@
 {
   "name": "@oniricosistemas/odd-view",
   "version": "0.1.0",
-  "private": true,
   "description": "Browse Organic Driven Development artifacts in a two-pane Pi terminal UI.",
+  "license": "MIT",
   "type": "module",
+  "files": [
+    "extensions",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oniricosistemas/odd-view.git"
+  },
+  "homepage": "https://github.com/oniricosistemas/odd-view#readme",
+  "bugs": {
+    "url": "https://github.com/oniricosistemas/odd-view/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "keywords": [
     "pi-package",
     "odd",
@@ -16,7 +34,9 @@
   },
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/*.js && node --test"
+    "check": "node --check src/*.js && node --test",
+    "prepack": "npm run check",
+    "release:check": "npm run check && npm pack --dry-run"
   },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*",
