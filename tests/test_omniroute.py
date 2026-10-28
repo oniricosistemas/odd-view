@@ -76,3 +76,30 @@ async def test_response_cap_aborts_stream_before_buffering_all_chunks():
         with pytest.raises(ValueError, match="too large"):
             await OmniRouteClient(raw, "placeholder").complete("gemini-rotativo", "x", Finding)
     assert consumed <= 5
+
+
+@pytest.mark.asyncio
+async def test_single_json_markdown_fence_is_accepted():
+    async def handler(request):
+        content = f"```json\n{__import__('json').dumps(VALID)}\n```"
+        return httpx.Response(200, json={"choices": [{"message": {"content": content}}]})
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url="http://router.test/v1") as raw:
+        finding = await OmniRouteClient(raw, "placeholder").complete("gemini-rotativo", "x", Finding)
+    assert finding.candidate_id == "c1"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("content", [
+    "```JSON\n{}\n```",
+    " ```json\n{}\n```",
+    "```json\n{}\n``` ",
+    "```json{}\n```",
+    "prefix\n```json\n{}\n```",
+    "```json\n{}\n```\nsuffix",
+])
+async def test_non_exact_json_markdown_fences_are_rejected(content):
+    async def handler(request):
+        return httpx.Response(200, json={"choices": [{"message": {"content": content}}]})
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url="http://router.test/v1") as raw:
+        with pytest.raises(ValueError):
+            await OmniRouteClient(raw, "placeholder").complete("gemini-rotativo", "x", Finding)

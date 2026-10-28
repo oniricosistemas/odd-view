@@ -60,4 +60,6 @@ class OmniRouteClient:
             raise ValueError("invalid OmniRoute response") from exc
         if not isinstance(content, str):
             raise ValueError("invalid OmniRoute content")
+        if content.startswith("```json\n") and content.endswith("\n```"):
+            content = content[len("```json\n"):-len("\n```")]
         return contract.model_validate(json.loads(content))
