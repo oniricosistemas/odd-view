@@ -11,7 +11,7 @@ The repository is an empty upstream, so the implementation includes the minimal 
 ## Tasks
 - [x] **T1** (S1) — Initialize the Pi package and enroll/sync the canonical `odd-view` Engram project. Route: inline. Commit: `3768990`.
 - [x] **T2** (S2-S4) — Implement the tested `/odd-review` two-pane TUI extension with keyboard and mouse navigation. Route: delegated (`gentle-ai-worker`, context backstop). Commit: `ec60a98`.
-- [x] **T3** (S1-S4) — Add usage documentation and run package, functional, and terminal-oriented verification. Route: inline. Commit: pending final work-unit commit.
+- [x] **T3** (S1-S4) — Add usage documentation and run package, functional, and terminal-oriented verification. Route: inline. Commit: `780ecbb`.
 
 ## Log
 - **L1 — User request:** “Hola papurri, tengo el repo https://github.com/oniricosistemas/odd-view para que usemos con este proyecto, enrolalo para que sincronice engram con el cloud que tenemos. 
