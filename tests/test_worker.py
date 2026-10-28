@@ -84,7 +84,9 @@ async def test_worker_end_to_end_real_sqlite_and_mock_transports(tmp_path):
     assert [data.get("event", data.get("name")) for _, data in github_posts] == ["COMMENT", "AI PR Review"]
     assert store.get_run(run_id)["status"] == "completed"
     review_payload = github_posts[0][1]
+    check_payload = github_posts[1][1]
     assert "persisted-v1" not in review_payload["body"]  # policy is represented only by its MAC marker
+    assert check_payload["details_url"] == "https://github.com/o/r/pull/7"
 
 
 @pytest.mark.asyncio
