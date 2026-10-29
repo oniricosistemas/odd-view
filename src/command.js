@@ -19,7 +19,7 @@ export function registerOddReview(pi, runtime) {
             return result.content;
           },
         });
-      }, { overlay: true, overlayOptions: { anchor: 'center', width: '100%', maxHeight: '100%' } });
+      }, { overlay: true, overlayOptions: { anchor: 'top-left', width: '100%', maxHeight: '100%', margin: 0 } });
     },
   });
 }

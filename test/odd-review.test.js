@@ -95,13 +95,13 @@ test('S3: rejects escapes and symlink roots, directories and files (including re
 
 test('S3/S4: keyboard and mouse select files and reset the preview scroll', async () => {
   const h = harness(); const c = await h.create();
-  assert.match(text(c), /> odd\/a.md/);
+  assert.match(text(c), />   a.md/);
   c.handleInput('down'); await c.whenIdle();
-  assert.match(text(c), /> odd\/b.md/);
+  assert.match(text(c), />   b.md/);
   assert.match(text(c), /odd\/b.md/);
   c.handleInput('tab'); c.handleInput('down');
-  c.handleMouse(mouse('click', 3, 2)); await c.whenIdle();
-  assert.match(text(c), /> odd\/a.md/);
+  c.handleMouse(mouse('click', 3, 4)); await c.whenIdle();
+  assert.match(text(c), />   a.md/);
   assert.match(text(c), /line 0/);
   assert.ok(h.renders > 0);
 });
@@ -120,11 +120,11 @@ test('S4: preview keyboard and wheel scroll independently without changing selec
   const h = harness(); const c = await h.create();
   text(c); c.handleInput('tab'); c.handleInput('pagedown');
   assert.doesNotMatch(text(c), /line 0\n/);
-  assert.match(text(c), /> odd\/a.md/);
+  assert.match(text(c), />   a.md/);
   c.handleInput('home'); assert.match(text(c), /line 0/);
   c.handleInput('tab'); c.handleMouse(mouse('wheel', 60, 4, 5));
   assert.doesNotMatch(text(c), /line 0\n/);
-  assert.match(text(c), /> odd\/a.md/);
+  assert.match(text(c), />   a.md/);
   c.handleInput('end'); assert.match(text(c), /line 79/);
 });
 
@@ -145,10 +145,10 @@ test('S2-S4: responsive fallback keeps both panes accessible via Tab and fits sh
     assert.ok(lines.every(line => line.length <= width));
     assert.ok(lines.length <= 18);
   }
-  assert.match(text(c, 30), /> odd\/a.md/);
+  assert.match(text(c, 30), />   a.md/);
   c.handleInput('tab');
   assert.match(text(c, 30), /line 0/);
-  c.handleInput('tab'); assert.match(text(c, 30), /> odd\/a.md/);
+  c.handleInput('tab'); assert.match(text(c, 30), />   a.md/);
 });
 
 test('S2: Escape and Ctrl+C close once and ignore late preview results', async () => {
@@ -164,4 +164,21 @@ test('S2: Escape and Ctrl+C close once and ignore late preview results', async (
     assert.equal(h.closes, 1);
     assert.equal(h.renders, renders);
   }
+});
+
+test('S7: fullscreen browser is a self-contained framed modal with tree navigation', async () => {
+  const h = harness(['odd/tasks/odd-review.md', 'odd/notes.md']);
+  const c = await h.create();
+  const lines = c.render(100);
+
+  assert.equal(lines.length, 18);
+  assert.match(lines[0], /^╭.*ODD Review.*\[Tab Switch\].*\[Esc Close\].*╮$/);
+  assert.match(lines[1], /^│.*Artifacts.*│.*Preview.*│$/);
+  assert.match(lines[2], /^├.*┼.*┤$/);
+  assert.match(lines.at(-2), /^│.*Tab.*navigate.*wheel.*scroll.*│$/);
+  assert.match(lines.at(-1), /^╰.*╯$/);
+  assert.match(lines.join('\n'), /odd\//);
+  assert.match(lines.join('\n'), /tasks\//);
+  assert.match(lines.join('\n'), /odd-review\.md/);
+  assert.ok(lines.every(line => line.length === 100));
 });

@@ -4,21 +4,50 @@ const label = text => clean(text).replace(/\n/g, ' ');
 const clamp = (value, max) => Math.max(0, Math.min(value, Math.max(0, max)));
 
 export function browserLayout(width, rows, focus) {
-  const height = Math.max(1, Math.min(36, rows));
+  const height = Math.max(1, rows);
+  const inner = Math.max(0, width - 2);
   const narrow = width < 60;
-  const left = narrow ? (focus === 'files' ? width : 0) : Math.max(22, Math.floor((width - 1) * 0.32));
-  return { width, height, body: Math.max(0, height - 3), narrow, left, right: narrow ? (focus === 'preview' ? width : 0) : width - left - 1 };
+  const available = Math.max(0, inner - (narrow ? 0 : 1));
+  const left = narrow ? (focus === 'files' ? inner : 0) : Math.max(22, Math.floor(available * 0.3));
+  return {
+    width,
+    height,
+    inner,
+    body: Math.max(0, height - 5),
+    narrow,
+    left,
+    right: narrow ? (focus === 'preview' ? inner : 0) : Math.max(0, available - left),
+  };
+}
+
+function treeRows(paths) {
+  const rows = [];
+  const directories = new Set();
+  paths.forEach((path, fileIndex) => {
+    const parts = path.split('/');
+    for (let depth = 0; depth < parts.length - 1; depth++) {
+      const directory = parts.slice(0, depth + 1).join('/');
+      if (!directories.has(directory)) {
+        directories.add(directory);
+        rows.push({ kind: 'directory', label: `${'  '.repeat(depth)}▾ ${parts[depth]}/` });
+      }
+    }
+    rows.push({ kind: 'file', fileIndex, label: `${'  '.repeat(Math.max(0, parts.length - 1))}${parts.at(-1)}` });
+  });
+  return rows;
 }
 
 /** A fresh, read-only interaction. Runtime adapters are the host's shipped TUI components. */
 export async function createBrowser({ paths, errors = [], read, tui, theme, done, runtime }) {
   const { Markdown, Text, getMarkdownTheme, truncateToWidth, matchesKey } = runtime;
+  const tree = treeRows(paths);
   let selected = 0, listTop = 0, previewTop = 0, focus = 'files';
   let content = '', failure = '', loading = false, pending = Promise.resolve(), generation = 0, closed = false;
   let preview, layout, previewLines = [];
   const fit = (text, width) => width > 0 ? truncateToWidth(text, width, '', true) : '';
   const request = () => { if (!closed) tui.requestRender(); };
   const maxScroll = () => Math.max(0, previewLines.length - (layout?.body || 1));
+  const selectedTreeRow = () => Math.max(0, tree.findIndex(row => row.fileIndex === selected));
 
   function load() {
     const version = ++generation;
@@ -76,8 +105,8 @@ export async function createBrowser({ paths, errors = [], read, tui, theme, done
       }
     },
     handleMouse(event) {
-      if (closed || !layout || event.y < 2 || event.y >= 2 + layout.body || event.x < 0 || event.x >= layout.width) return;
-      const pane = layout.narrow ? focus : event.x < layout.left ? 'files' : event.x > layout.left ? 'preview' : null;
+      if (closed || !layout || event.y < 3 || event.y >= 3 + layout.body || event.x < 0 || event.x >= layout.width) return;
+      const pane = layout.narrow ? focus : event.x <= layout.left ? 'files' : event.x >= layout.left + 2 ? 'preview' : null;
       if (!pane) return;
       if (event.type === 'wheel') {
         focus = pane;
@@ -88,8 +117,8 @@ export async function createBrowser({ paths, errors = [], read, tui, theme, done
       if (event.type === 'click' && event.button === 'left') {
         focus = pane;
         if (pane === 'files') {
-          const index = listTop + event.y - 2;
-          if (index < paths.length) select(index);
+          const row = tree[listTop + event.y - 3];
+          if (row?.kind === 'file') select(row.fileIndex);
         }
         request();
         return { handled: true, focus: true, render: true };
@@ -99,19 +128,34 @@ export async function createBrowser({ paths, errors = [], read, tui, theme, done
       if (width < 1) return [];
       layout = browserLayout(width, tui.terminal.rows, focus);
       const th = theme;
-      const paneHeader = (label, pane) => th.fg(focus === pane ? 'accent' : 'muted', `${focus === pane ? '●' : '○'} ${label}`);
+      if (width < 4) return [fit(focus === 'files' ? 'F' : 'P', width)];
+      const topBorder = () => {
+        if (width < 34) return th.fg('border', `╭${'─'.repeat(Math.max(0, width - 2))}╮`);
+        const title = ' ODD Review ';
+        const actions = '[Tab Switch] [Esc Close]';
+        const fill = '─'.repeat(Math.max(1, layout.inner - title.length - actions.length - 2));
+        return th.fg('border', '╭─') + th.fg('accent', th.bold(' ODD Review ')) + th.fg('border', fill)
+          + th.fg('accent', '[Tab Switch] [Esc Close]') + th.fg('border', '─╮');
+      };
+      const paneHeader = (text, pane) => th.fg(focus === pane ? 'accent' : 'muted', `${focus === pane ? '◆' : '◇'} ${text}`);
       const warning = errors.length ? clean(errors.join('\n')) : '';
       const empty = warning || 'No files found in odd/';
       const emptyLines = empty.split('\n');
       const list = [];
-      listTop = clamp(listTop, paths.length - layout.body);
-      if (selected < listTop) listTop = selected;
-      if (selected >= listTop + layout.body) listTop = Math.max(0, selected - layout.body + 1);
+      const activeRow = selectedTreeRow();
+      listTop = clamp(listTop, tree.length - layout.body);
+      if (activeRow < listTop) listTop = activeRow;
+      if (activeRow >= listTop + layout.body) listTop = Math.max(0, activeRow - layout.body + 1);
       for (let row = 0; row < layout.body; row++) {
-        const index = listTop + row;
-        let line = paths.length ? (paths[index] ? `${index === selected ? '> ' : '  '}${label(paths[index])}` : '') : emptyLines[row] || '';
+        const item = tree[listTop + row];
+        let line = paths.length && item
+          ? item.kind === 'directory'
+            ? item.label
+            : `${item.fileIndex === selected ? '> ' : '  '}${item.label}`
+          : paths.length ? '' : emptyLines[row] || '';
         line = fit(line, layout.left);
-        if (paths.length && index === selected) line = th.bg('selectedBg', th.fg('accent', line));
+        if (item?.kind === 'file' && item.fileIndex === selected) line = th.bg('selectedBg', th.fg('accent', line));
+        else if (item?.kind === 'directory') line = th.fg('muted', line);
         else if (!paths.length) line = th.fg(warning ? 'error' : 'muted', line);
         list.push(line);
       }
@@ -125,15 +169,25 @@ export async function createBrowser({ paths, errors = [], read, tui, theme, done
         previewLines = preview.render(Math.max(1, layout.right));
         previewTop = clamp(previewTop, maxScroll());
       }
-      const header = th.fg('accent', th.bold(' ODD Review')) + th.fg('muted', ` · read-only · ${paths.length} files${errors.length ? ` · ${errors.length} discovery errors` : ''}`);
-      const columns = (left, right) => layout.narrow ? (focus === 'files' ? fit(left, width) : fit(right, width)) : fit(left, layout.left) + th.fg('border', '│') + fit(right, layout.right);
-      const lines = [fit(header, width), columns(paneHeader('Files', 'files'), paneHeader(label(paths[selected] || 'Preview'), 'preview'))];
+      const columns = (left, right) => layout.narrow
+        ? th.fg('border', '│') + fit(focus === 'files' ? left : right, layout.inner) + th.fg('border', '│')
+        : th.fg('border', '│') + fit(left, layout.left) + th.fg('border', '│') + fit(right, layout.right) + th.fg('border', '│');
+      const divider = layout.narrow
+        ? th.fg('border', `├${'─'.repeat(layout.inner)}┤`)
+        : th.fg('border', `├${'─'.repeat(layout.left)}┼${'─'.repeat(layout.right)}┤`);
+      const lines = [
+        topBorder(),
+        columns(paneHeader(`Artifacts · ${paths.length}`, 'files'), paneHeader(`Preview · ${label(paths[selected] || 'No selection')}`, 'preview')),
+        divider,
+      ];
       for (let row = 0; row < layout.body; row++) {
         let right = previewLines[previewTop + row] || '';
         if (failure) right = th.fg('error', right);
         lines.push(columns(list[row] || '', right));
       }
-      lines.push(fit(th.fg('muted', ` Tab: pane · ↑↓/PgUp/PgDn/Home/End · click: select · wheel: scroll · Esc/Ctrl+C: close${layout.narrow ? ' · compact' : ''}`), width));
+      const help = ` Tab switch · ↑↓ navigate · PgUp/PgDn scroll · click select · wheel scroll · Esc close${layout.narrow ? ' · compact' : ''}`;
+      lines.push(th.fg('border', '│') + fit(th.fg('muted', help), layout.inner) + th.fg('border', '│'));
+      lines.push(th.fg('border', `╰${'─'.repeat(layout.inner)}╯`));
       return lines.slice(0, layout.height);
     },
   };
