@@ -43,8 +43,46 @@ def test_ranges_and_model_output_are_bounded():
 def test_contracts_reject_coercion_whitespace_and_unbounded_suggestions():
     with pytest.raises(ValidationError):
         Finding.model_validate({**VALID, "line": "4"})
-    with pytest.raises(ValidationError):
-        Finding.model_validate({**VALID, "candidate_id": " c1"})
     from ai_reviewer.contracts import SuggestionBatch
     with pytest.raises(ValidationError):
         SuggestionBatch.model_validate({"suggestions": ["x" * 2001]})
+
+
+def test_finding_strips_whitespace_instead_of_rejecting():
+    """Whitespace-padded strings are stripped (fix for ValidationError on LLM output)."""
+    result = Finding.model_validate({**VALID, "candidate_id": "  c1  ",
+                                     "rule_id": "  logic  "})
+    assert result.candidate_id == "c1"
+    assert result.rule_id == "logic"
+
+
+def test_finding_strips_evidence_whitespace():
+    """When the LLM returns evidence with leading/trailing whitespace, it should be stripped."""
+    result = Finding.model_validate({**VALID, "evidence": "  x can be null  ",
+                                     "impact": "  crash  ", "recommendation": "  guard x  "})
+    assert result.evidence == "x can be null"
+    assert result.impact == "crash"
+    assert result.recommendation == "guard x"
+
+
+def test_finding_strips_all_string_fields():
+    """All string fields should have outer whitespace stripped."""
+    result = Finding.model_validate({
+        **VALID,
+        "candidate_id": "  c1  ",
+        "rule_id": "  logic  ",
+        "path": "  src/a.py  ",
+        "title": "  Bug  ",
+        "evidence": "  x can be null  ",
+        "impact": "  crash  ",
+        "recommendation": "  guard x  ",
+        "root_cause_key": "  null-x  ",
+    })
+    assert result.candidate_id == "c1"
+    assert result.rule_id == "logic"
+    assert result.path == "src/a.py"
+    assert result.title == "Bug"
+    assert result.evidence == "x can be null"
+    assert result.impact == "crash"
+    assert result.recommendation == "guard x"
+    assert result.root_cause_key == "null-x"

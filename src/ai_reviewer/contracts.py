@@ -27,9 +27,7 @@ class Finding(StrictModel):
                      "recommendation", "root_cause_key")
     @classmethod
     def no_outer_whitespace(cls, value: str) -> str:
-        if value != value.strip():
-            raise ValueError("strings must not have outer whitespace")
-        return value
+        return value.strip()
 
     @field_validator("path")
     @classmethod
