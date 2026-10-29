@@ -69,9 +69,9 @@ class Publisher:
         comments = [{"path": item.finding.path, "line": item.finding.line,
                      "side": item.finding.side,
                      "body": f"**{self._safe(item.finding.title)}**\n\n{self._safe(item.finding.evidence)}\n\n"
-                             f"Impact: {self._safe(item.finding.impact)}\n\n"
-                             f"Recommendation: {self._safe(item.finding.recommendation)}\n\n"
-                             f"Fingerprint: `{item.fingerprint}`"}
+                             f"Impacto: {self._safe(item.finding.impact)}\n\n"
+                             f"Recomendación: {self._safe(item.finding.recommendation)}\n\n"
+                             f"Huella: `{item.fingerprint}`"}
                     for item in findings]
         return {
             "marker": marker,

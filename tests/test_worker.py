@@ -63,12 +63,15 @@ async def test_worker_end_to_end_real_sqlite_and_mock_transports(tmp_path):
                                          "head_sha": sha, "app": {"id": 42}})
     models = []
     async def omni_handler(request):
-        model = json.loads(request.content)["model"]; models.append(model)
+        request_data = json.loads(request.content)
+        model = request_data["model"]
+        prompt_data = json.loads(request_data["messages"][1]["content"])
+        assert prompt_data["output_language"] == "es-AR"
+        models.append(model)
         if model == "gemini-rotativo": content = {"findings": [{**VALID, "path": "src/auth.py"}]}
         elif model == "OpenRoute-Free":
-            prompt = json.loads(json.loads(request.content)["messages"][1]["content"])
-            candidate = prompt["candidates"][0]["candidate_id"]
-            assert prompt["task"] == "verify_findings" and candidate == "primary:c1"
+            candidate = prompt_data["candidates"][0]["candidate_id"]
+            assert prompt_data["task"] == "verify_findings" and candidate == "primary:c1"
             content = {"verifications": [{"candidate_id": candidate, "decision": "confirm"}]}
         elif model == "Ollama":
             # Wording suggestions are non-authoritative and must never block a review.

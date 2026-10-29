@@ -96,6 +96,10 @@ async def test_reconciliation_rejects_spoofed_identity_and_sanitizes_hostile_out
         await Publisher(GitHubClient(raw, token), b"server-marker-secret", 42, 7).publish(
             "o/r", 3, "abc", "v1", [ReducedFinding(finding, "fp")])
     comment = posts[0]["comments"][0]["body"]
+    assert "Impacto:" in comment
+    assert "Recomendación:" in comment
+    assert "Huella:" in comment
+    assert "Impact:" not in comment and "Recommendation:" not in comment and "Fingerprint:" not in comment
     assert "@admin" not in comment and "<img" not in comment and "https://" not in comment
     assert posts[0]["event"] == "COMMENT"
 

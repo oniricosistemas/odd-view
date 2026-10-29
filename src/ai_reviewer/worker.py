@@ -176,7 +176,8 @@ class Worker:
             verifications = []
             for review_pass in passes:
                 if review_pass.role == "primary":
-                    prompt = prompt_json({"task": "find_defects", "schema": FindingBatch.model_json_schema(),
+                    prompt = prompt_json({"task": "find_defects", "output_language": "es-AR",
+                                          "schema": FindingBatch.model_json_schema(),
                                           "pr_data": pr_data})
                     batch = await self.omni.complete(review_pass.model, prompt, FindingBatch)
                     findings.extend(canonicalize_findings(review_pass.role, batch))
@@ -184,6 +185,7 @@ class Worker:
                     if findings:
                         validate_locations(findings, locations)
                         prompt = prompt_json({"task": "verify_findings",
+                                              "output_language": "es-AR",
                                               "schema": VerificationBatch.model_json_schema(),
                                               "pr_data": pr_data,
                                               "candidates": [item.model_dump(mode="json") for item in findings]})
@@ -191,6 +193,7 @@ class Worker:
                             review_pass.model, prompt, VerificationBatch)).verifications)
                 else:
                     prompt = prompt_json({"task": "suggest_wording_only",
+                                          "output_language": "es-AR",
                                           "schema": SuggestionBatch.model_json_schema(), "pr_data": pr_data})
                     try:
                         await self.omni.complete(review_pass.model, prompt, SuggestionBatch)
