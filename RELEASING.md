@@ -5,7 +5,7 @@ A release is one reviewed commit published through two package sources: a GitHub
 ## Prerequisites
 
 - Write access to `oniricosistemas/odd-view` on GitHub.
-- Publish access to the `@oniricosistemas` npm scope.
+- An npm account allowed to create and publish the unscoped `odd-view` package.
 - npm authentication configured locally or through an approved trusted-publishing workflow.
 - A clean checkout of the default branch with its remote up to date.
 
@@ -40,16 +40,18 @@ A release is one reviewed commit published through two package sources: a GitHub
    git push origin "v$(node -p "require('./package.json').version")"
    ```
 
-5. Publish the same version to npm with provenance:
+5. Publish the same version to npm:
 
    ```bash
-   npm publish --access public --provenance
+   npm publish --access public
    ```
+
+   When publication moves to a supported trusted-publishing CI, add npm provenance there rather than claiming local provenance.
 
 6. Verify both public installation paths in clean Gentle Shell homes, replacing `${VERSION}` with the released version:
 
    ```bash
-   gentle-shell install npm:@oniricosistemas/odd-view@${VERSION}
+   gentle-shell install npm:odd-view@${VERSION}
    gentle-shell install git:github.com/oniricosistemas/odd-view@v${VERSION}
    gentle-shell list
    ```
