@@ -16,7 +16,7 @@ The repository is an empty upstream, so the implementation includes the minimal 
 - [x] **T2** (S2-S4) — Implement the tested `/odd-review` two-pane TUI extension with keyboard and mouse navigation. Route: delegated (`gentle-ai-worker`, context backstop). Commit: `ec60a98`.
 - [x] **T3** (S1-S6) — Correct Gentle Shell usage documentation and verify the final install instructions. Route: inline. Commit: `4f1ee69`.
 - [x] **T4** (S5-S6) — Prepare a public MIT-licensed npm package and reproducible GitHub-tag release flow without publishing. Route: inline. Commit: `4f1ee69`.
-- [x] **T5** (S7) — Redesign `/odd-review` as a self-contained fullscreen framed browser matching the supplied reference. Route: inline. Commits: `1eef0e6`, correction pending work-unit commit.
+- [x] **T5** (S7) — Redesign `/odd-review` as a self-contained fullscreen framed browser matching the supplied reference. Route: inline. Commits: `1eef0e6`, `59ef391`.
 
 ## Log
 - **L1 — User request:** “Hola papurri, tengo el repo https://github.com/oniricosistemas/odd-view para que usemos con este proyecto, enrolalo para que sincronice engram con el cloud que tenemos. 
