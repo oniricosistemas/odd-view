@@ -81,7 +81,7 @@ class Publisher:
             "check_payload": {"name": "AI PR Review", "head_sha": head_sha,
                               "details_url": f"https://github.com/{repo}/pull/{pull}",
                               "external_id": external_id, "status": "completed",
-                              "conclusion": "neutral", "output": {"title": "Revisión de IA completada",
+                              "conclusion": "success", "output": {"title": "Revisión de IA completada",
                               "summary": f"Hallazgos encontrados: {len(findings)}."}},
             "result": [item.fingerprint for item in findings],
         }

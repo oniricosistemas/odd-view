@@ -9,7 +9,7 @@ A constrained GitHub App service that coordinates one consolidated, multi-pass P
 3. A worker obtains a short-lived installation token from a locally signed GitHub App JWT, fetches the PR and paginated files from fixed GitHub REST 2022-11-28 endpoints, and never follows redirects.
 4. Passes are fixed by local policy: `gemini-rotativo` primary, `OpenCode-Free` adversarial, deterministic-risk `OpenRoute-Free` specialist, and non-authoritative `Ollama` wording suggestions. `auto/*` and every other model ID are rejected.
 5. Strict bounded JSON findings/verdicts are checked against repository-relative paths and right-side lines present in the patch. Only explicitly confirmed primary or specialist findings survive; amendments are revalidated. A deterministic reducer deduplicates, fingerprints, sorts, and caps output at eight.
-6. The worker checks live PR state around every side effect. It reconciles an HMAC-authenticated marker and Check Run `external_id` only for the configured bot/App and exact commit, producing one `COMMENT` review and one completed neutral Check Run. Hostile model text is escaped and remote links/mentions are neutralized.
+6. The worker checks live PR state around every side effect. It reconciles an HMAC-authenticated marker and Check Run `external_id` only for the configured bot/App and exact commit, producing one `COMMENT` review and one completed successful Check Run. Hostile model text is escaped and remote links/mentions are neutralized.
 
 Untrusted PR titles, bodies, patches, and model responses are data only. They cannot select a model, endpoint, action, token, or publication mode. Logs intentionally exclude webhook payloads, tokens, and diffs.
 

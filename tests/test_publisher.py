@@ -23,6 +23,16 @@ def test_publication_summary_is_in_spanish():
     }
 
 
+def test_completed_publication_contract_is_comment_named_ai_pr_review_and_success():
+    snapshot = Publisher(None, b"server-marker-secret", 42, 7).render_snapshot(
+        "o/r", 3, "abc", "v1", []
+    )
+    assert snapshot["review_payload"]["event"] == "COMMENT"
+    assert snapshot["check_payload"]["name"] == "AI PR Review"
+    assert snapshot["check_payload"]["status"] == "completed"
+    assert snapshot["check_payload"]["conclusion"] == "success"
+
+
 @pytest.mark.asyncio
 async def test_publication_reconciles_one_comment_review_and_check_exact_sha():
     posts = []
