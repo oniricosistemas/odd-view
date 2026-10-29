@@ -182,3 +182,67 @@ test('S7: fullscreen browser is a self-contained framed modal with tree navigati
   assert.match(lines.join('\n'), /odd-review\.md/);
   assert.ok(lines.every(line => line.length === 100));
 });
+
+test('S7/S2: compact browser fits every terminal width', async () => {
+  const c = await harness().create();
+  for (let width = 1; width <= 100; width++) {
+    for (const line of c.render(width)) {
+      assert.ok(line.length <= width, `rendered ${line.length} columns at terminal width ${width}`);
+    }
+  }
+});
+
+test('S3/S4/S7: filesystem artifact names cannot inject terminal controls', async t => {
+  const root = await fixture(t);
+  const name = 'odd/a\u001b[31m.md';
+  await writeFile(join(root, name), '# Safe');
+  const before = await readFile(join(root, name));
+  const { discoverFiles, readPreview } = await files();
+  const { paths } = await discoverFiles(root);
+  assert.deepEqual(paths, [name]);
+
+  const c = await harness(paths, {
+    read: async path => {
+      const result = await readPreview(root, path);
+      if (result.error) throw new Error(result.error);
+      return result.content;
+    },
+  }).create();
+
+  assert.doesNotMatch(text(c), /[\x00-\x08\x0b-\x1f\x7f-\x9f]/);
+  assert.deepEqual(await readFile(join(root, name)), before);
+});
+
+test('S3/S4/S7: scrolled tree clicks and pane wheels retain routing', async () => {
+  const paths = Array.from({ length: 30 }, (_, i) => `odd/tasks/f${String(i).padStart(2, '0')}.md`);
+  let selected;
+  const c = await harness(paths, {
+    read: async path => {
+      selected = path;
+      return Array.from({ length: 90 }, (_, i) => `CONTENT-${i}`).join('\n');
+    },
+  }).create();
+
+  c.render(100);
+  c.handleInput('end');
+  await c.whenIdle();
+
+  const row = c.render(100).findIndex(line => line.includes('f28.md'));
+  assert.ok(row >= 3);
+  c.handleMouse(mouse('click', 4, row));
+  await c.whenIdle();
+  assert.equal(selected, paths[28]);
+
+  c.render(100);
+  c.handleMouse(mouse('wheel', 4, 5, -2));
+  await c.whenIdle();
+  assert.equal(selected, paths[26]);
+
+  c.render(100);
+  c.handleMouse(mouse('wheel', 80, 5, 5));
+  assert.match(text(c), /CONTENT-5/);
+  assert.equal(selected, paths[26]);
+
+  c.handleInput('home');
+  assert.match(text(c), /CONTENT-0/);
+});

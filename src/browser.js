@@ -29,10 +29,10 @@ function treeRows(paths) {
       const directory = parts.slice(0, depth + 1).join('/');
       if (!directories.has(directory)) {
         directories.add(directory);
-        rows.push({ kind: 'directory', label: `${'  '.repeat(depth)}▾ ${parts[depth]}/` });
+        rows.push({ kind: 'directory', label: `${'  '.repeat(depth)}▾ ${label(parts[depth])}/` });
       }
     }
-    rows.push({ kind: 'file', fileIndex, label: `${'  '.repeat(Math.max(0, parts.length - 1))}${parts.at(-1)}` });
+    rows.push({ kind: 'file', fileIndex, label: `${'  '.repeat(Math.max(0, parts.length - 1))}${label(parts.at(-1))}` });
   });
   return rows;
 }
@@ -130,7 +130,7 @@ export async function createBrowser({ paths, errors = [], read, tui, theme, done
       const th = theme;
       if (width < 4) return [fit(focus === 'files' ? 'F' : 'P', width)];
       const topBorder = () => {
-        if (width < 34) return th.fg('border', `╭${'─'.repeat(Math.max(0, width - 2))}╮`);
+        if (width < 41) return th.fg('border', `╭${'─'.repeat(Math.max(0, width - 2))}╮`);
         const title = ' ODD Review ';
         const actions = '[Tab Switch] [Esc Close]';
         const fill = '─'.repeat(Math.max(1, layout.inner - title.length - actions.length - 2));
