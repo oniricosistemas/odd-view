@@ -15,8 +15,8 @@ The repository is an empty upstream, so the implementation includes the minimal 
 ## Tasks
 - [x] **T1** (S1) — Initialize the Pi package and enroll/sync the canonical `odd-view` Engram project. Route: inline. Commit: `3768990`.
 - [x] **T2** (S2-S4) — Implement the tested `/odd-review` two-pane TUI extension with keyboard and mouse navigation. Route: delegated (`gentle-ai-worker`, context backstop). Commit: `ec60a98`.
-- [x] **T3** (S1-S8) — Rewrite the README with the requested project pitch, unscoped install commands, and final Gentle AI brand image. Route: inline. Commit: pending release-preparation work-unit commit.
-- [x] **T4** (S5-S6, S8) — Rename and verify the public npm package as unscoped `odd-view`. Route: inline. Commit: pending release-preparation work-unit commit.
+- [x] **T3** (S1-S8) — Rewrite the README with the requested project pitch, unscoped install commands, and final Gentle AI brand image. Route: inline. Commit: `ff3ab76`.
+- [x] **T4** (S5-S6, S8) — Rename and verify the public npm package as unscoped `odd-view`. Route: inline. Commit: `ff3ab76`.
 - [x] **T5** (S7) — Redesign `/odd-review` as a self-contained fullscreen framed browser matching the supplied reference. Route: inline. Commits: `1eef0e6`, `59ef391`.
 - [ ] **T6** (S6, S8) — Replace remote `main`, create/push `v0.1.0`, and publish npm `odd-view@0.1.0` after final delivery verification. Route: inline. Commit: delivery task (no source commit).
 
@@ -42,3 +42,4 @@ Bien te cuento locura lo que tengo ganas de hacer.... querio crear un plugin/ext
 - **L18 — Delivery decisions:** Remote `main` contained unrelated reviewer-pilot history and npm credentials lacked `@oniricosistemas` access. The user explicitly selected “Reemplazar main con odd-view” and “Publicar como odd-view”. The unscoped npm name was confirmed available before implementation.
 - **L19 — README TDD:** The focused S8 test first failed against the old English/scoped-package README. The rewritten Spanish README now includes the requested terminal-first pitch, project description, npm/GitHub/local installation, usage, controls, safety, development, license, and final `creado con:` Gentle AI image at width 280; the focused test passed 1/1.
 - **L20 — Unscoped package TDD:** The package test first failed because the manifest still named `@oniricosistemas/odd-view`. After renaming to `odd-view` and updating release/install instructions, the focused package test passed 1/1, `npm run release:check` passed all 15 tests, and the dry-run payload contained exactly seven public files as `odd-view@0.1.0`.
+- **L21 — Release-preparation verification:** Independent verification passed S6/S8 preparation: 15/15 tests, exact seven-file `odd-view@0.1.0` payload, isolated Gentle Shell install/list/remove, final brand image, correct local non-provenance publication instructions, no automatic delivery hooks, and no repository mutation. External delivery remained pending T6.
