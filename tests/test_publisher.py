@@ -12,6 +12,17 @@ from ai_reviewer.reducer import ReducedFinding
 async def token(): return "tok"
 
 
+def test_publication_summary_is_in_spanish():
+    snapshot = Publisher(None, b"server-marker-secret", 42, 7).render_snapshot(
+        "o/r", 3, "abc", "v1", []
+    )
+    assert snapshot["review_payload"]["body"].startswith("Revisión de IA completada.\n")
+    assert snapshot["check_payload"]["output"] == {
+        "title": "Revisión de IA completada",
+        "summary": "Hallazgos encontrados: 0.",
+    }
+
+
 @pytest.mark.asyncio
 async def test_publication_reconciles_one_comment_review_and_check_exact_sha():
     posts = []

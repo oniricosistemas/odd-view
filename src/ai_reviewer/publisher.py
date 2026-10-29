@@ -77,12 +77,12 @@ class Publisher:
             "marker": marker,
             "external_id": external_id,
             "review_payload": {"commit_id": head_sha, "event": "COMMENT",
-                               "body": f"AI review complete.\n{marker}", "comments": comments},
+                               "body": f"Revisión de IA completada.\n{marker}", "comments": comments},
             "check_payload": {"name": "AI PR Review", "head_sha": head_sha,
                               "details_url": f"https://github.com/{repo}/pull/{pull}",
                               "external_id": external_id, "status": "completed",
-                              "conclusion": "neutral", "output": {"title": "AI review complete",
-                              "summary": f"{len(findings)} finding(s)."}},
+                              "conclusion": "neutral", "output": {"title": "Revisión de IA completada",
+                              "summary": f"Hallazgos encontrados: {len(findings)}."}},
             "result": [item.fingerprint for item in findings],
         }
 
