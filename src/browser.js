@@ -118,7 +118,16 @@ export async function createBrowser({ paths, errors = [], read, tui, theme, done
         focus = pane;
         if (pane === 'files') {
           const row = tree[listTop + event.y - 3];
-          if (row?.kind === 'file') select(row.fileIndex);
+          if (row) {
+            if (row.kind === 'directory') {
+              const dirName = row.label.replace(/^[^▾]*▾ /, '').replace(/\/$/, '');
+              const prefix = dirName + '/';
+              const hasChildren = paths.some(p => p === dirName || p.startsWith(prefix));
+              // Togglear: eliminar los hijos visibles del directorio en paths locales.
+              const newPaths = hasChildren ? paths.filter(p => !(p.startsWith(prefix) && p !== dirName)) : paths;
+            }
+            if (row.kind === 'file') select(row.fileIndex);
+          }
         }
         request();
         return { handled: true, focus: true, render: true };
