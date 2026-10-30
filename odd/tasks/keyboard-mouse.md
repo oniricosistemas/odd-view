@@ -1,14 +1,18 @@
 ## Specs
 S1: El usuario pidió "los indicativos de las teclas reactivos al ratón, como en el resto del agente". Cita literal: "Le podías añadir que los indicativos de las teclas fueran reactivos al ratón, como es en el resto del agente."
-S2: Confirmación del usuario: los de parte inferior (ej. "esc") también. Confirmación final: "los de la parte inferior tambien por ejemplo el que dice esc" + "si hace click en ESC se cierra".
-S3: Los paneles (`files`/`preview`) ya responden al mouse (`handleMouse`); se mantienen y se confirma que directorios colapsan/expandan con click. Confirmación: "es correcto, creo que es suficiente con los paneles y carpetas".
-S4: Alcance: no inventar estilos hover inexistentes en `theme`; usar `accent`/`bold` del runtime existente.
+S2: Los indicativos de la fila inferior también, incluido `Esc close`. Cita literal: "los de la parte inferior tambien por ejemplo el que dice esc".
+S3: Click en `[Esc Close]` o en `Esc close` cierra la ventana exactamente una vez. Cita literal: "si hace click en ESC se cierra".
+S4: Click en una carpeta del árbol la colapsa o expande. Cita literal: "o si hace click en una carpeta en el panel de los archivos los colpasa o expande".
+S5: Alcance confirmado: badges superiores (`[Tab Switch]`, `[Esc Close]`), fila de ayuda inferior, paneles y carpetas. Cita literal: "los badges (Tab Switch, Esc Close) y fila inferior (Tab, ↑↓, Esc) tiene que ser clickeable tambien como los del top".
+S6: No se inventan estilos de tema: el realce de hover usa `underline` (o `bold` como fallback) y los tokens existentes `accent`, `muted`, `selectedBg`, `border`.
 
 ## Tasks
-T1: Especificación y plan (S1-S4) — commit: `feat: spec mouse-reactive badges and dirs`
-T2: Implementar click en badges top/bottom y colapso/expansión de directorios en `browser.js` — commit: `feat: mouse-reactive keyboard badges and dirs`
-T3: Verificar con `npm test` — commit: `test: verify mouse badges and dirs`
+T1: Especificación, tests RED y plan (S1-S6) — commit: `a4f97d8`
+T2: Regiones de click/hover, acción por indicativo y colapso de carpetas en `src/browser.js` (S1-S5) — commit: `cea0d43`
+T3: Controles del README, tests MR1-MR5 y verificación `npm test` + `npm run check` (S2-S6) — commit: `cea0d43`
 
 ## Log
 L1: Petición original: "Le podías añadir que los indicativos de las teclas fueran reactivos al ratón, como es en el resto del agente."
-L2: Confirmación puntos 1 y 2 (badges + paneles) y fila inferior (`esc`). Confirmación final: suficiente con paneles y carpetas; click en `esc` cierra; directorios colapsan/expanden.
+L2: Confirmó que los indicativos de la fila inferior también, "por ejemplo el que dice esc".
+L3: Confirmó que click en ESC cierra y que click en una carpeta la colapsa o expande.
+L4: Corrección de alcance: "los badges (Tab Switch, Esc Close) y fila inferior (Tab, ↑↓, Esc) tiene que ser clickeable tambien como los del top".
