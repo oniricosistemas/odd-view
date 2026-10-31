@@ -1,6 +1,6 @@
 {
   "name": "odd-view",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Browse Organic Driven Development artifacts in a two-pane Pi terminal UI.",
   "license": "MIT",
   "type": "module",
