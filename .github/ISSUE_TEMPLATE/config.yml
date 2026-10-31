@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: odd-view documentation
+    url: https://github.com/oniricosistemas/odd-view#readme
+    about: Read the usage and installation documentation.

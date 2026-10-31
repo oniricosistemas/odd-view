@@ -1,0 +1,44 @@
+name: Feature Request
+description: Suggest a focused improvement to odd-view.
+title: "feature: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the user problem and the outcome you want. Please search existing issues first and avoid including private project data or credentials.
+  - type: checkboxes
+    id: existing-issues
+    attributes:
+      label: Existing issues
+      options:
+        - label: I searched existing issues for this idea.
+          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What are you trying to do, and what currently makes it difficult?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Proposed outcome
+      description: Describe the behavior or result that would help you.
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples and acceptance criteria
+      description: Give concrete examples of how someone would use this and how success could be checked.
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds or other approaches you considered.
+    validations:
+      required: false

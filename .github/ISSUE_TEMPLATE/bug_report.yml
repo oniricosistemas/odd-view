@@ -1,0 +1,56 @@
+name: Bug Report
+description: Report a reproducible problem with odd-view.
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please search existing issues first. Do not include credentials, private project data, or terminal output containing secrets.
+  - type: checkboxes
+    id: existing-issues
+    attributes:
+      label: Existing issues
+      options:
+        - label: I searched existing issues for this problem.
+          required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Include the command, input, and interaction steps needed to reproduce the problem.
+      placeholder: |
+        1. Run ...
+        2. Open ...
+        3. Click ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead? Redact secrets and private data.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: odd-view version
+      description: Package version or commit tested.
+      placeholder: 0.1.0
+    validations:
+      required: false
+  - type: input
+    id: runtime
+    attributes:
+      label: Gentle Shell / Pi version
+      description: Runtime version, if relevant.
+    validations:
+      required: false
