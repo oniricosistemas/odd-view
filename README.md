@@ -11,6 +11,7 @@ ODD conserva especificaciones, tareas, decisiones y evidencia dentro del directo
 - Descubre recursivamente los archivos de `odd/`.
 - Renderiza Markdown con el tema activo de Gentle Shell.
 - Permite navegar con teclado o mouse.
+- Resalta y activa con el mouse los indicativos de teclas y las carpetas del árbol.
 - Se adapta a terminales angostas mostrando un panel por vez.
 - Mantiene una frontera estrictamente read-only.
 - Rechaza escapes de ruta, symlinks y archivos especiales.
@@ -62,14 +63,17 @@ La ventana muestra el árbol de artefactos a la izquierda y el preview del archi
 
 ## Controles
 
+Todos los indicativos de teclas de la ventana —los del borde superior y los de la fila de ayuda— responden al mouse: al pasar por encima se resaltan y al hacer click ejecutan esa acción.
+
 | Acción | Teclado | Mouse en fullscreen |
 | --- | --- | --- |
-| Cambiar de panel | `Tab` o `Shift+Tab` | Click sobre el panel |
+| Cambiar de panel | `Tab` o `Shift+Tab` | Click en `[Tab Switch]`, en `Tab switch` o sobre un panel |
 | Seleccionar archivo | `↑`, `↓`, `Page Up`, `Page Down`, `Home`, `End` | Click o rueda sobre el árbol |
-| Abrir el preview | `Enter` o `→` | Click sobre el preview |
-| Desplazar el preview | `↑`, `↓`, `Page Up`, `Page Down`, `Space`, `Home`, `End` | Rueda sobre el preview |
+| Abrir el preview | `Enter` o `→` | Click en `[Tab Switch]`, en `Tab switch` o sobre el preview |
+| Desplazar el preview | `↑`, `↓`, `Page Up`, `Page Down`, `Space`, `Home`, `End` | Rueda sobre el preview, o click en `↑`, `↓`, `PgUp`, `PgDn` de la ayuda |
+| Colapsar o expandir una carpeta | — | Click sobre la carpeta en el árbol |
 | Volver al árbol | `←` | Click sobre el árbol |
-| Cerrar | `Esc` o `Ctrl+C` | — |
+| Cerrar | `Esc` o `Ctrl+C` | Click en `[Esc Close]` o en `Esc close` |
 
 ## Seguridad de lectura
 

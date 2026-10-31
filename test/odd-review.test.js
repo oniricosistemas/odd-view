@@ -246,3 +246,77 @@ test('S3/S4/S7: scrolled tree clicks and pane wheels retain routing', async () =
   c.handleInput('home');
   assert.match(text(c), /CONTENT-0/);
 });
+
+test('MR1: top border and help badges are mouse-reactive', async () => {
+  const h = harness(); const c = await h.create();
+  const lines = c.render(100);
+  const click = (text, line, row) => {
+    const x = line.indexOf(text);
+    assert.ok(x >= 0, `${text} is rendered`);
+    c.handleMouse(mouse('click', x + 1, row));
+  };
+
+  click('[Tab Switch]', lines[0], 0);
+  assert.match(text(c), /◆ Preview/);
+  click('[Tab Switch]', c.render(100)[0], 0);
+  assert.match(text(c), /◆ Artifacts/);
+
+  const helpRow = lines.length - 2;
+  click('Tab switch', lines[helpRow], helpRow);
+  assert.match(text(c), /◆ Preview/);
+  click('Esc close', c.render(100)[helpRow], helpRow);
+  assert.equal(h.closes, 1);
+});
+
+test('MR2: the top close badge closes exactly once', async () => {
+  const h = harness(); const c = await h.create();
+  const line = c.render(100)[0];
+  const x = line.indexOf('[Esc Close]') + 2;
+  c.handleMouse(mouse('click', x, 0));
+  c.handleMouse(mouse('click', x, 0));
+  assert.equal(h.closes, 1);
+});
+
+test('MR3: clicking a directory collapses and expands it, keeping selection visible', async () => {
+  const h = harness(['odd/tasks/a.md', 'odd/notes.md']); const c = await h.create();
+  let lines = c.render(100);
+  const dirRow = lines => lines.findIndex((line, index) => index >= 3 && line.includes('▾ tasks/'));
+  const row = dirRow(lines);
+  assert.ok(row >= 3);
+  const x = lines[row].indexOf('tasks/') + 1;
+
+  c.handleMouse(mouse('click', x, row)); await c.whenIdle();
+  let collapsed = c.render(100);
+  assert.match(collapsed[row], /▸/);
+  assert.doesNotMatch(collapsed.join('\n'), /a\.md/);
+  assert.match(collapsed.join('\n'), />   notes\.md/);
+
+  c.handleMouse(mouse('click', x, row)); await c.whenIdle();
+  lines = c.render(100);
+  assert.match(lines[row], /▾ tasks\//);
+  assert.match(lines.join('\n'), /a\.md/);
+});
+
+test('MR4: keyboard navigation skips files hidden by a collapsed directory', async () => {
+  const h = harness(['odd/tasks/a.md', 'odd/tasks/b.md', 'odd/z.md']); const c = await h.create();
+  const lines = c.render(100);
+  const row = lines.findIndex((line, index) => index >= 3 && line.includes('▾ tasks/'));
+  assert.ok(row >= 3);
+  c.handleMouse(mouse('click', lines[row].indexOf('tasks/') + 1, row));
+  await c.whenIdle();
+  assert.match(text(c), />   z\.md/);
+  c.handleInput('up');
+  assert.match(text(c), />   z\.md/);
+});
+
+test('MR5: Home and End target the first and last visible file', async () => {
+  const h = harness(['odd/tasks/a.md', 'odd/tasks/b.md', 'odd/z.md']); const c = await h.create();
+  const lines = c.render(100);
+  const row = lines.findIndex((line, index) => index >= 3 && line.includes('▾ tasks/'));
+  c.handleMouse(mouse('click', lines[row].indexOf('tasks/') + 1, row));
+  await c.whenIdle();
+  c.handleInput('home');
+  assert.match(text(c), />   z\.md/);
+  c.handleInput('end');
+  assert.match(text(c), />   z\.md/);
+});
