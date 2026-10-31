@@ -1,0 +1,23 @@
+# Label definitions for issue and pull request triage. Keep this manifest in sync with GitHub.
+# status/approved is reserved for an explicit maintainer decision; never automate it.
+- name: status/approved
+  color: "0e8a16"
+  description: "A maintainer reviewed the issue and explicitly accepted it for work. Never applied automatically."
+- name: type:bug
+  color: "d73a4a"
+  description: "A bug fix or correction."
+- name: type:feature
+  color: "a2eeef"
+  description: "A new user-facing capability or improvement."
+- name: type:docs
+  color: "0075ca"
+  description: "Documentation-only changes."
+- name: type:refactor
+  color: "fbca04"
+  description: "Code restructuring without intended behavior changes."
+- name: type:chore
+  color: "ededed"
+  description: "Maintenance, tests, or tooling changes."
+- name: type:breaking-change
+  color: "b60205"
+  description: "A backwards-incompatible change."

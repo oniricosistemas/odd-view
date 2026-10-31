@@ -83,6 +83,10 @@ El navegador nunca modifica los artefactos del proyecto. Antes de abrir un archi
 
 Los nombres de archivos también se limpian antes de renderizarse para evitar secuencias de control en la terminal.
 
+## Contribuir
+
+Los formularios de issues, el proceso de triage manual y la guía para pull requests están en [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ## Desarrollo
 
 ```bash
