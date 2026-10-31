@@ -16,3 +16,15 @@ L1: Petición original: "Le podías añadir que los indicativos de las teclas fu
 L2: Confirmó que los indicativos de la fila inferior también, "por ejemplo el que dice esc".
 L3: Confirmó que click en ESC cierra y que click en una carpeta la colapsa o expande.
 L4: Corrección de alcance: "los badges (Tab Switch, Esc Close) y fila inferior (Tab, ↑↓, Esc) tiene que ser clickeable tambien como los del top".
+
+## Follow-up: v0.2.0 field reports
+
+S7: Cita literal: "En el panel de artefactos, quizás se podría mejorar el subrayado del enlazado (elemento seleccionado), tal como está subraya toda la línea, quedaría más limpio si se limitara solo al texto."
+S8: Cita literal: "PROBLEMA: Al salir de la extensión y retornar a la página principal del agente el teclado no reacciona, no deja hacer nada, parece que la extensión secuestra el manejador ("handle") de teclado o lo deja en el limbo".
+
+T4: Reproducir y corregir el foco de teclado perdido al cerrar (`MR6`, `MR7`) — commit: pending
+T5: Limitar el resaltado de selección al texto (`MR8`) — commit: pending
+
+Cause of S8: the close path returned `focus: true` from `handleMouse` after the overlay was already
+disposed, so the host restored keyboard focus to a dead component. Mouse kept working because it is
+dispatched by overlay layout, not by focus.
