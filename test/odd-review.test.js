@@ -320,3 +320,58 @@ test('MR5: Home and End target the first and last visible file', async () => {
   c.handleInput('end');
   assert.match(text(c), />   z\.md/);
 });
+
+test('MR6: no mouse result claims keyboard focus after the browser closes', async () => {
+  const h = harness(); const c = await h.create();
+  const lines = c.render(100);
+  const x = lines[0].indexOf('[Esc Close]') + 2;
+  // A closing click must never return focus: the owner is gone, so returning focus leaves the
+  // host pointing at a disposed overlay and the keyboard stops reaching the agent.
+  const closeResult = c.handleMouse(mouse('click', x, 0));
+  assert.equal(h.closes, 1);
+  assert.equal(closeResult?.focus, undefined);
+
+  // Interactions after close must be inert and must not request focus either.
+  const laterResult = c.handleMouse(mouse('click', 4, 4));
+  assert.equal(h.closes, 1);
+  assert.equal(laterResult?.focus, undefined);
+});
+
+test('MR7: keyboard Escape close does not leave a focused owner behind', async () => {
+  const h = harness(); const c = await h.create();
+  c.render(100);
+  c.handleInput('escape');
+  assert.equal(h.closes, 1);
+  const after = c.handleMouse(mouse('click', 4, 4));
+  assert.equal(after?.focus, undefined);
+  assert.equal(h.closes, 1);
+});
+
+test('MR8: the selected row highlights only its text, not the padded pane width', async () => {
+  const painted = [];
+  const marked = {
+    fg: (_t, text) => text,
+    bg: (_t, text) => { painted.push(text); return `\u0001${text}\u0002`; },
+    bold: t => t,
+    underline: t => t,
+  };
+  const { createBrowser } = await view();
+  const c = await createBrowser({
+    paths: ['odd/a.md', 'odd/b.md'],
+    read: async path => path,
+    tui: { terminal: { rows: 18 }, requestRender() {} },
+    theme: marked, done: {}, runtime: {
+      matchesKey: (d, k) => d === k,
+      truncateToWidth: (text, width, _ellipsis, pad) => text.slice(0, width).padEnd(pad ? width : 0),
+      Markdown: class { constructor(t) { this.t = t; } render() { return [this.t]; } invalidate() {} },
+      Text: class { constructor(t) { this.t = t; } render() { return [this.t]; } invalidate() {} },
+      getMarkdownTheme: () => ({}),
+    },
+  });
+  const line = c.render(100).find(row => row.includes('\u0001'));
+  assert.ok(line, 'the selected row is painted');
+  const inner = line.match(/\u0001([^\u0002]*)\u0002/)[1];
+  assert.match(inner, /a\.md/);
+  // The highlight must end at the label: padding belongs outside the painted region.
+  assert.equal(inner, inner.trimEnd(), `highlight must not include pane padding, got ${JSON.stringify(inner)}`);
+});

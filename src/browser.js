@@ -115,7 +115,7 @@ export async function createBrowser({ paths, errors = [], read, tui, theme, done
     request();
   }
   function run(action) {
-    if (action === 'close') { close(); return true; }
+    if (action === 'close') { close(); return 'closed'; }
     if (action === 'tab') { focus = focus === 'files' ? 'preview' : 'files'; request(); return true; }
     if (action === 'files' || action === 'preview') { focus = action; request(); return true; }
     if (action === 'up') { focus === 'files' ? step(-1) : scroll(-1); return true; }
@@ -159,6 +159,8 @@ export async function createBrowser({ paths, errors = [], read, tui, theme, done
     },
     handleMouse(event) {
       if (closed || !layout || event.x < 0 || event.y < 0 || event.x >= layout.width || event.y >= layout.height) return;
+      // Every return below must omit focus once this overlay is gone: the host would otherwise
+      // hand keyboard focus back to a disposed component and the agent stops receiving input.
       const region = regions.find(item => item.y === event.y && event.x >= item.x0 && event.x <= item.x1) || null;
       const inBody = event.y >= 3 && event.y < 3 + layout.body;
       const rowIndex = inBody ? listTop + event.y - 3 : null;
@@ -171,7 +173,11 @@ export async function createBrowser({ paths, errors = [], read, tui, theme, done
         return { handled: false, render: false };
       }
       if (event.type === 'click' && event.button === 'left') {
-        if (region && run(region.action)) return { handled: true, focus: true, render: true };
+        if (region) {
+          const outcome = run(region.action);
+          if (outcome === 'closed') return { handled: true, render: true };
+          if (outcome) return { handled: true, focus: true, render: true };
+        }
         const pane = layout.narrow ? focus : event.x <= layout.left ? 'files' : event.x >= layout.left + 2 ? 'preview' : null;
         if (!pane) return;
         focus = pane;
@@ -235,12 +241,14 @@ export async function createBrowser({ paths, errors = [], read, tui, theme, done
             ? item.label
             : `${item.fileIndex === selected ? '> ' : '  '}${item.label}`
           : paths.length ? '' : emptyLines[row] || '';
-        line = fit(line, layout.left);
+        // Style the text before padding so the selection highlight stops at the label instead
+        // of underlining the whole pane width.
         const hovered = hoverRow === rowIndex && item;
         if (item?.kind === 'file' && item.fileIndex === selected) line = th.bg('selectedBg', th.fg('accent', line));
         else if (item?.kind === 'directory') line = hovered ? emphasis(th.fg('accent', line)) : th.fg('muted', line);
         else if (!paths.length) line = th.fg(warning ? 'error' : 'muted', line);
         else if (hovered) line = emphasis(th.fg('accent', line));
+        line = fit(line, layout.left);
         list.push(line);
       }
       if (layout.right > 0) {
