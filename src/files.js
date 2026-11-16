@@ -30,7 +30,7 @@ async function checkedPath(project, name, directory = false) {
 
 /** Recursively list regular artifacts, using portable repository-relative paths. */
 export async function discoverFiles(project) {
-  const paths = [], errors = [];
+  const artifacts = [], errors = [];
   async function visit(name) {
     let path;
     try {
@@ -40,8 +40,11 @@ export async function discoverFiles(project) {
         const child = `${name}/${entry.name}`;
         if (entry.isDirectory()) await visit(child);
         else if (entry.isFile()) {
-          try { await checkedPath(project, child); paths.push(child); }
-          catch (error) { errors.push(`Cannot inspect ${child}: ${reason(error)}`); }
+          try {
+            const path = await checkedPath(project, child);
+            const { mtimeMs } = await lstat(path);
+            artifacts.push({ path: child, mtimeMs });
+          } catch (error) { errors.push(`Cannot inspect ${child}: ${reason(error)}`); }
         }
         // Never follow symlinks or open special files (pipes, sockets, devices).
       }
@@ -50,7 +53,8 @@ export async function discoverFiles(project) {
     }
   }
   await visit('odd');
-  return { paths: paths.sort(), errors: errors.sort() };
+  artifacts.sort((left, right) => right.mtimeMs - left.mtimeMs || left.path.localeCompare(right.path));
+  return { paths: artifacts.map(artifact => artifact.path), errors: errors.sort() };
 }
 
 /** Read only a validated regular file; bound memory and never execute file content. */

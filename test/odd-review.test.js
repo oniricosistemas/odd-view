@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile, symlink, readFile, readdir, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, symlink, readFile, readdir, rm, utimes } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -59,17 +59,23 @@ test('S2: registers odd-review, opens an overlay only in TUI mode', async () => 
   assert.equal(calls, 1);
 });
 
-test('S3: recursively discovers only regular ODD files in stable relative order, without writes', async t => {
+test('S3: recursively discovers only regular ODD files, newest first, without writes', async t => {
   const root = await fixture(t);
-  await writeFile(join(root, 'odd', 'z.txt'), 'Z');
-  await writeFile(join(root, 'odd', 'tasks', 'a.md'), '# A');
+  const older = new Date('2025-01-01T00:00:00Z');
+  const newer = new Date('2025-01-02T00:00:00Z');
+  await writeFile(join(root, 'odd', 'a.txt'), 'A');
+  await writeFile(join(root, 'odd', 'tasks', 'b.md'), '# B');
+  await writeFile(join(root, 'odd', 'tasks', 'c.md'), '# C');
+  await utimes(join(root, 'odd', 'a.txt'), older, older);
+  await utimes(join(root, 'odd', 'tasks', 'b.md'), newer, newer);
+  await utimes(join(root, 'odd', 'tasks', 'c.md'), newer, newer);
   await writeFile(join(root, 'outside.md'), 'outside');
   const before = await readdir(root, { recursive: true });
   const { discoverFiles, readPreview } = await files();
-  assert.deepEqual(await discoverFiles(root), { paths: ['odd/tasks/a.md', 'odd/z.txt'], errors: [] });
-  assert.deepEqual(await readPreview(root, 'odd/tasks/a.md'), { content: '# A' });
+  assert.deepEqual(await discoverFiles(root), { paths: ['odd/tasks/b.md', 'odd/tasks/c.md', 'odd/a.txt'], errors: [] });
+  assert.deepEqual(await readPreview(root, 'odd/tasks/b.md'), { content: '# B' });
   assert.deepEqual(await readdir(root, { recursive: true }), before);
-  assert.equal(await readFile(join(root, 'odd', 'tasks', 'a.md'), 'utf8'), '# A');
+  assert.equal(await readFile(join(root, 'odd', 'tasks', 'b.md'), 'utf8'), '# B');
 });
 
 test('S3: rejects escapes and symlink roots, directories and files (including replaced selections)', async t => {
