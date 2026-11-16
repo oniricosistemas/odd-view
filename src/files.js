@@ -5,6 +5,7 @@ import { isAbsolute, join, sep } from 'node:path';
 const MAX_PREVIEW_BYTES = 512 * 1024;
 const reason = error => error.code || error.message;
 const within = (root, path) => path.startsWith(root + sep);
+const comparePaths = (left, right) => left < right ? -1 : left > right ? 1 : 0;
 
 // Revalidate every component on each operation: discovered names are not capabilities.
 async function checkedPath(project, name, directory = false) {
@@ -53,7 +54,7 @@ export async function discoverFiles(project) {
     }
   }
   await visit('odd');
-  artifacts.sort((left, right) => right.mtimeMs - left.mtimeMs || left.path.localeCompare(right.path));
+  artifacts.sort((left, right) => right.mtimeMs - left.mtimeMs || comparePaths(left.path, right.path));
   return { paths: artifacts.map(artifact => artifact.path), errors: errors.sort() };
 }
 
