@@ -64,25 +64,26 @@ test('S3: recursively discovers only regular ODD files, newest first, without wr
   const older = new Date('2025-01-01T00:00:00Z');
   const newer = new Date('2025-01-02T00:00:00Z');
   await writeFile(join(root, 'odd', 'a.txt'), 'A');
-  await writeFile(join(root, 'odd', 'tasks', 'A.md'), '# Upper A');
-  await writeFile(join(root, 'odd', 'tasks', 'a.md'), '# Lower A');
-  await writeFile(join(root, 'odd', 'tasks', 'b.md'), '# B');
-  await writeFile(join(root, 'odd', 'tasks', 'c.md'), '# C');
-  await writeFile(join(root, 'odd', 'tasks', 'á.md'), '# Accented A');
+  const tiedNames = ['-dash.md', '0-number.md', '_underscore.md', 'a-letter.md'];
+  for (const name of tiedNames) await writeFile(join(root, 'odd', 'tasks', name), `# ${name}`);
   await utimes(join(root, 'odd', 'a.txt'), older, older);
-  for (const name of ['A.md', 'a.md', 'b.md', 'c.md', 'á.md']) {
-    await utimes(join(root, 'odd', 'tasks', name), newer, newer);
-  }
+  for (const name of tiedNames) await utimes(join(root, 'odd', 'tasks', name), newer, newer);
   await writeFile(join(root, 'outside.md'), 'outside');
   const before = await readdir(root, { recursive: true });
   const { discoverFiles, readPreview } = await files();
   assert.deepEqual(await discoverFiles(root), {
-    paths: ['odd/tasks/A.md', 'odd/tasks/a.md', 'odd/tasks/b.md', 'odd/tasks/c.md', 'odd/tasks/á.md', 'odd/a.txt'],
+    paths: [
+      'odd/tasks/-dash.md',
+      'odd/tasks/0-number.md',
+      'odd/tasks/_underscore.md',
+      'odd/tasks/a-letter.md',
+      'odd/a.txt',
+    ],
     errors: [],
   });
-  assert.deepEqual(await readPreview(root, 'odd/tasks/b.md'), { content: '# B' });
+  assert.deepEqual(await readPreview(root, 'odd/tasks/a-letter.md'), { content: '# a-letter.md' });
   assert.deepEqual(await readdir(root, { recursive: true }), before);
-  assert.equal(await readFile(join(root, 'odd', 'tasks', 'b.md'), 'utf8'), '# B');
+  assert.equal(await readFile(join(root, 'odd', 'tasks', 'a-letter.md'), 'utf8'), '# a-letter.md');
 });
 
 test('S3: rejects escapes and symlink roots, directories and files (including replaced selections)', async t => {
