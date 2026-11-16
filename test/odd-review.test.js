@@ -61,13 +61,18 @@ test('S2: registers odd-review, opens an overlay only in TUI mode', async () => 
 
 test('S3: recursively discovers only regular ODD files in deterministic path order, without writes', async t => {
   const root = await fixture(t);
-  const older = new Date('2025-01-01T00:00:00Z');
-  const newer = new Date('2025-01-02T00:00:00Z');
+  const oldest = new Date('2025-01-01T00:00:00Z');
+  const middle = new Date('2025-01-02T00:00:00Z');
+  const newest = new Date('2025-01-03T00:00:00Z');
   await writeFile(join(root, 'odd', 'a.txt'), 'A');
   const tiedNames = ['-dash.md', '0-number.md', '_underscore.md', 'a-letter.md'];
   for (const name of tiedNames) await writeFile(join(root, 'odd', 'tasks', name), `# ${name}`);
-  await utimes(join(root, 'odd', 'a.txt'), older, older);
-  for (const name of tiedNames) await utimes(join(root, 'odd', 'tasks', name), newer, newer);
+  await utimes(join(root, 'odd', 'a.txt'), middle, middle);
+  await utimes(join(root, 'odd', 'tasks', '-dash.md'), newest, newest);
+  await utimes(join(root, 'odd', 'tasks', '0-number.md'), oldest, oldest);
+  for (const name of ['_underscore.md', 'a-letter.md']) {
+    await utimes(join(root, 'odd', 'tasks', name), middle, middle);
+  }
   await writeFile(join(root, 'outside.md'), 'outside');
   const before = await readdir(root, { recursive: true });
   const { discoverFiles, readPreview } = await files();
