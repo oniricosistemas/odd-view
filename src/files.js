@@ -36,21 +36,31 @@ export async function discoverFiles(project) {
     try {
       path = await checkedPath(project, name, true);
       const entries = await readdir(path, { withFileTypes: true });
+      const files = [], directories = [];
       for (const entry of entries) {
         const child = `${name}/${entry.name}`;
-        if (entry.isDirectory()) await visit(child);
+        if (entry.isDirectory()) directories.push(child);
         else if (entry.isFile()) {
-          try { await checkedPath(project, child); paths.push(child); }
+          try {
+            const checked = await checkedPath(project, child);
+            const stat = await lstat(checked);
+            if (!stat.isFile()) throw new Error('Not a regular file');
+            files.push({ path: child, mtime: stat.mtimeMs });
+          }
           catch (error) { errors.push(`Cannot inspect ${child}: ${reason(error)}`); }
         }
         // Never follow symlinks or open special files (pipes, sockets, devices).
       }
+      // Keep each directory's files together; never globally sort away mtime order.
+      files.sort((a, b) => b.mtime - a.mtime || (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+      paths.push(...files.map(file => file.path));
+      for (const directory of directories.sort()) await visit(directory);
     } catch (error) {
       if (name !== 'odd' || error.code !== 'ENOENT') errors.push(`Cannot read ${name}/: ${reason(error)}`);
     }
   }
   await visit('odd');
-  return { paths: paths.sort(), errors: errors.sort() };
+  return { paths, errors: errors.sort() };
 }
 
 /** Read only a validated regular file; bound memory and never execute file content. */

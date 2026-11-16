@@ -59,7 +59,7 @@ test('S2: registers odd-review, opens an overlay only in TUI mode', async () => 
   assert.equal(calls, 1);
 });
 
-test('S3: recursively discovers only regular ODD files in deterministic path order, without writes', async t => {
+test('S3: recursively discovers only regular ODD files, newest first per directory, without writes', async t => {
   const root = await fixture(t);
   const oldest = new Date('2025-01-01T00:00:00Z');
   const middle = new Date('2025-01-02T00:00:00Z');
@@ -80,9 +80,9 @@ test('S3: recursively discovers only regular ODD files in deterministic path ord
     paths: [
       'odd/a.txt',
       'odd/tasks/-dash.md',
-      'odd/tasks/0-number.md',
       'odd/tasks/_underscore.md',
       'odd/tasks/a-letter.md',
+      'odd/tasks/0-number.md',
     ],
     errors: [],
   });
